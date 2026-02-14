@@ -204,7 +204,7 @@
                                     <p class="mb-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-teal-300/80">Estimate Pulse</p>
                                     <div class="mb-3 flex items-end justify-center gap-2">
                                         <span class="pulse-price text-2xl font-bold text-teal-300">RM</span>
-                                        <span class="pulse-price text-6xl font-black tracking-tight text-white">3,450</span>
+                                        <span class="pulse-price text-6xl font-black tracking-tight text-white">1,402</span>
                                     </div>
                                     <p class="mb-5 text-[11px] font-bold uppercase tracking-[0.24em] text-slate-400">Live Price Intelligence</p>
                                     <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-700">

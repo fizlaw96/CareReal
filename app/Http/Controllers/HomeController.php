@@ -11,7 +11,7 @@ class HomeController extends Controller
         $categories = Category::orderBy('name')->get();
 
         return view('home', [
-            'title' => 'CareReal.my | Anggar Kos Rawatan',
+            'title' => 'CareReal.my',
             'categories' => $categories,
         ]);
     }
