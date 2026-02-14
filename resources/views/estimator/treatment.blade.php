@@ -44,6 +44,13 @@
     </style>
 
     <section class="mx-auto max-w-7xl">
+        <div class="mb-4">
+            <a href="{{ route('categories') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-teal-300 hover:text-teal-700">
+                <span aria-hidden="true">←</span>
+                Kembali
+            </a>
+        </div>
+
         <div class="mb-8 text-center md:mb-10">
             <p class="text-sm font-semibold uppercase tracking-widest text-teal-700">Kategori {{ $category->name }}</p>
             <h1 class="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl md:text-4xl">Pilih Jenis Rawatan Dahulu</h1>

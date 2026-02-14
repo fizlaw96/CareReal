@@ -60,6 +60,13 @@
         }
     </style>
 
+    <div class="mb-4">
+        <a href="{{ route('home') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-teal-300 hover:text-teal-700">
+            <span aria-hidden="true">←</span>
+            Kembali
+        </a>
+    </div>
+
     <div class="mb-8 md:mb-10">
         <h1 class="text-2xl font-extrabold text-slate-900 sm:text-3xl">Pilih Bidang Rawatan</h1>
         <p class="mt-2 text-sm text-slate-600 sm:text-base">Langkah pertama untuk anggaran: pilih bidang rawatan yang paling sesuai dengan keperluan anda.</p>

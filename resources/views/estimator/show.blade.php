@@ -42,12 +42,21 @@
         }
     </style>
 
-    <section class="mx-auto max-w-3xl text-center">
+    <section class="mx-auto max-w-3xl">
+        <div class="mb-4">
+            <a href="{{ route('estimator', $category->slug) }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-teal-300 hover:text-teal-700">
+                <span aria-hidden="true">←</span>
+                Kembali
+            </a>
+        </div>
+
+        <div class="text-center">
         <p class="text-sm font-semibold uppercase tracking-widest text-teal-700">Kategori {{ $category->name }}</p>
         <h1 class="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl md:text-4xl">{{ $treatment->name }}</h1>
         <a href="{{ route('estimator', $category->slug) }}" class="mt-4 inline-flex text-sm font-semibold text-slate-600 hover:text-teal-700">
             ← Tukar jenis rawatan
         </a>
+        </div>
     </section>
 
     @if($questions->isEmpty())
