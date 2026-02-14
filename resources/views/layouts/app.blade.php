@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>{{ $title ?? 'CareReal.my' }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/carereal_logo.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/carereal_logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/images/carereal_logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -14,14 +17,14 @@
 
     <nav class="sticky top-0 z-40 border-b border-teal-100/70 bg-white/80 backdrop-blur-xl">
         <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-            <a href="{{ route('home') }}" class="text-xl font-extrabold tracking-tight text-slate-900">
-                CareReal<span class="text-teal-600">.my</span>
+            <a href="{{ route('home') }}" class="inline-flex items-center">
+                <img src="{{ asset('assets/images/carereal_logo.png') }}" alt="CareReal.my" class="h-11 w-auto">
+                <span class="sr-only">CareReal.my</span>
             </a>
 
             <div class="hidden items-center gap-6 text-sm font-semibold md:flex">
-                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'text-teal-700' : 'text-slate-600 hover:text-teal-600' }}">Utama</a>
-                <a href="{{ route('categories') }}" class="{{ request()->routeIs('categories', 'estimator', 'estimation.calculate') ? 'text-teal-700' : 'text-slate-600 hover:text-teal-600' }}">Anggar Kos</a>
-                <a href="{{ route('clinic.finder') }}" class="{{ request()->routeIs('clinic.finder', 'clinic.search') ? 'text-teal-700' : 'text-slate-600 hover:text-teal-600' }}">Cari Klinik</a>
+                <a href="{{ route('categories') }}" class="{{ request()->routeIs('categories', 'estimator', 'estimator.questions', 'estimation.calculate') ? 'text-teal-700' : 'text-slate-600 hover:text-teal-600' }}">Anggar Kos</a>
+                <a href="{{ route('clinic.finder') }}" class="{{ request()->routeIs('clinic.finder', 'clinic.search') ? 'text-teal-700' : 'text-slate-600 hover:text-teal-600' }}">Cari Tempat</a>
             </div>
         </div>
     </nav>

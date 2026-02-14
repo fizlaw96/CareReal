@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'serpapi' => [
+        'key' => env('SERPAPI_KEY'),
+        'endpoint' => env('SERPAPI_ENDPOINT', 'https://serpapi.com/search.json'),
+    ],
+
 ];

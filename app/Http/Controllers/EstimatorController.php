@@ -7,28 +7,118 @@ use App\Models\Option;
 use App\Models\Treatment;
 use App\Services\EstimationCalculator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class EstimatorController extends Controller
 {
     public function show(Category $category, Request $request)
     {
-        $treatments = $category
-            ->treatments()
-            ->with(['questions.options'])
-            ->get();
+        $treatments = $category->treatments()->get();
 
         abort_if($treatments->isEmpty(), 404, 'Tiada rawatan ditemui untuk kategori ini.');
 
-        $selectedTreatment = $treatments->firstWhere('slug', $request->string('treatment')->toString())
-            ?? $treatments->first();
+        $requestedTreatmentSlug = $request->query('treatment');
+        if (filled($requestedTreatmentSlug)) {
+            $selectedTreatment = $treatments->firstWhere('slug', $requestedTreatmentSlug);
+            if ($selectedTreatment) {
+                return redirect()->route('estimator.questions', [
+                    'category' => $category->slug,
+                    'treatment' => $selectedTreatment->slug,
+                ]);
+            }
+        }
 
-        return view('estimator.show', [
-            'title' => 'Anggaran: '.$category->name,
+        $treatmentGuides = $this->buildTreatmentGuides($treatments);
+        $treatmentImages = $this->buildTreatmentImages($treatments);
+
+        return view('estimator.treatment', [
+            'title' => 'Pilih Rawatan: '.$category->name,
             'category' => $category,
             'treatments' => $treatments,
-            'treatment' => $selectedTreatment,
-            'questions' => $selectedTreatment->questions,
+            'treatmentGuides' => $treatmentGuides,
+            'treatmentImages' => $treatmentImages,
         ]);
+    }
+
+    public function questions(Category $category, Treatment $treatment)
+    {
+        abort_if(
+            $treatment->category_id !== $category->id,
+            404,
+            'Rawatan ini bukan dalam kategori yang dipilih.'
+        );
+
+        $treatment->load(['questions.options']);
+
+        return view('estimator.show', [
+            'title' => 'Anggaran: '.$category->name.' - '.$treatment->name,
+            'category' => $category,
+            'treatment' => $treatment,
+            'questions' => $treatment->questions,
+        ]);
+    }
+
+    /**
+     * @param  Collection<int, Treatment>  $treatments
+     * @return array<string, string>
+     */
+    private function buildTreatmentGuides(Collection $treatments): array
+    {
+        $defaults = [
+            'metal-braces' => 'Braces asas yang kukuh dan pilihan paling biasa untuk pembetulan susunan gigi.',
+            'ceramic-braces' => 'Braces warna seakan gigi, lebih subtle untuk penampilan harian.',
+            'self-ligating-braces' => 'Braces dengan mekanisme klip khas, biasanya lebih selesa ketika adjustment.',
+            'clear-aligner' => 'Tray lutsinar boleh tanggal, sesuai untuk gaya rawatan lebih fleksibel.',
+            'whitening' => 'Rawatan pencerahan warna gigi bagi kesan estetik yang cepat.',
+            'prk' => 'Rawatan pembetulan rabun tanpa flap kornea, sesuai untuk profil tertentu.',
+            'lasik' => 'Prosedur laser popular dengan pemulihan yang biasanya lebih cepat.',
+            'smile' => 'Teknik laser minima invasif dengan bukaan kecil pada kornea.',
+            'ortho-k' => 'Kanta khas dipakai waktu malam untuk bantu kawal rabun pada waktu siang.',
+            'prp-rambut' => 'Suntikan plasma untuk rangsang folikel rambut dan kurangkan keguguran.',
+            'hair-transplant' => 'Pemindahan folikel rambut ke kawasan menipis untuk hasil lebih kekal.',
+            'scalp-treatment' => 'Rawatan kulit kepala untuk kesihatan folikel dan persekitaran pertumbuhan.',
+            'facial-klinikal' => 'Rawatan asas klinikal untuk pembersihan dan pemulihan kulit.',
+            'laser-jerawat' => 'Rawatan laser untuk keradangan jerawat aktif dan kawalan minyak.',
+            'laser-parut' => 'Rawatan fokus pada parut jerawat atau tekstur kulit tidak sekata.',
+            'chemical-peel' => 'Exfoliation kimia terkawal untuk tona kulit dan pori lebih sekata.',
+            'online-coaching' => 'Bimbingan kecergasan jarak jauh dengan pelan latihan tersusun.',
+            'personal-trainer' => 'Sesi fizikal bersama jurulatih untuk pemantauan teknik dan progres.',
+            'pelan-pemakanan' => 'Perancangan pemakanan ikut matlamat berat, tenaga, dan komposisi badan.',
+            'basic-checkup' => 'Pemeriksaan asas rutin untuk saringan kesihatan umum.',
+            'executive-checkup' => 'Pakej lebih menyeluruh dengan panel ujian tambahan.',
+            'full-screening' => 'Saringan komprehensif untuk penilaian kesihatan yang lebih mendalam.',
+        ];
+
+        return $treatments
+            ->mapWithKeys(fn (Treatment $treatment) => [
+                $treatment->slug => $defaults[$treatment->slug]
+                    ?? 'Rawatan ini sesuai untuk keperluan umum dalam kategori ini.',
+            ])
+            ->all();
+    }
+
+    /**
+     * @param  Collection<int, Treatment>  $treatments
+     * @return array<string, string|null>
+     */
+    private function buildTreatmentImages(Collection $treatments): array
+    {
+        return $treatments
+            ->mapWithKeys(function (Treatment $treatment) {
+                $baseName = str_replace('-', '_', $treatment->slug);
+                $directory = 'assets/images/jenis_rawatan';
+                $extensions = ['jpg', 'jpeg', 'png', 'webp'];
+
+                foreach ($extensions as $extension) {
+                    $relativePath = $directory.'/'.$baseName.'.'.$extension;
+                    if (file_exists(public_path($relativePath))) {
+                        return [$treatment->slug => asset($relativePath)];
+                    }
+                }
+
+                return [$treatment->slug => null];
+            })
+            ->all();
     }
 
     public function calculate(Request $request, EstimationCalculator $calculator)

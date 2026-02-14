@@ -28,7 +28,7 @@
             <a href="{{ route('clinic.finder', ['treatment' => $treatment->slug]) }}" class="rounded-xl bg-teal-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-teal-200 transition hover:bg-teal-700">
                 Cari Klinik Berdekatan
             </a>
-            <a href="{{ route('estimator', ['category' => $category->slug, 'treatment' => $treatment->slug]) }}" class="rounded-xl border border-slate-300 px-6 py-3 text-sm font-bold text-slate-700 transition hover:border-teal-300 hover:text-teal-700">
+            <a href="{{ route('estimator.questions', ['category' => $category->slug, 'treatment' => $treatment->slug]) }}" class="rounded-xl border border-slate-300 px-6 py-3 text-sm font-bold text-slate-700 transition hover:border-teal-300 hover:text-teal-700">
                 Ubah Jawapan
             </a>
         </div>
