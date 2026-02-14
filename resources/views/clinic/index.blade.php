@@ -2,18 +2,36 @@
 
 @section('content')
     <div class="mb-8">
-        <h1 class="text-3xl font-extrabold text-slate-900">Cari Pusat Rawatan</h1>
+        <h1 class="text-2xl font-extrabold text-slate-900 sm:text-3xl">Cari Pusat Rawatan</h1>
         <p class="mt-2 text-slate-600">
             Pilih rawatan dan lokasi untuk cari tempat yang sesuai. Jenis tempat semasa:
             <span class="font-semibold text-teal-700">{{ $placeLabel ?? 'Pusat Rawatan' }}</span>
         </p>
+
+        @if(isset($selectedTreatment) && $selectedTreatment && $selectedTreatment->base_min && $selectedTreatment->base_max)
+            <div class="mt-4 inline-flex flex-wrap items-center gap-2 rounded-xl border border-teal-200 bg-teal-50 px-4 py-2 text-sm text-teal-800">
+                <span class="font-semibold">Julat harga {{ $selectedTreatment->name }}:</span>
+                <span class="font-extrabold">RM {{ number_format($selectedTreatment->base_min) }} - RM {{ number_format($selectedTreatment->base_max) }}</span>
+            </div>
+        @endif
     </div>
 
-    <form method="GET" action="{{ route('clinic.search') }}" class="mb-8 space-y-4 rounded-2xl border border-slate-200 bg-white p-6">
+    <form id="clinicSearchForm" method="GET" action="{{ route('clinic.search') }}" class="mb-8 space-y-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
+        @if($errors->any())
+            <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                <p class="font-semibold">Sila semak maklumat carian.</p>
+                <ul class="mt-2 list-disc space-y-1 pl-5">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         @if(!isset($selectedTreatment) || $selectedTreatment === null)
             <div>
                 <label for="treatment" class="mb-2 block text-sm font-semibold text-slate-700">Jenis Rawatan</label>
-                <select id="treatment" name="treatment" class="w-full rounded-lg border border-slate-300 p-3 text-sm">
+                <select id="treatment" name="treatment" required class="w-full rounded-lg border p-3 text-sm {{ $errors->has('treatment') ? 'border-rose-400 bg-rose-50' : 'border-slate-300' }}">
                     <option value="">Pilih rawatan</option>
                     @foreach($treatments as $treatment)
                         <option value="{{ $treatment->slug }}" @selected(request('treatment') === $treatment->slug)>
@@ -21,6 +39,9 @@
                         </option>
                     @endforeach
                 </select>
+                @error('treatment')
+                    <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p>
+                @enderror
             </div>
         @else
             <div class="rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm">
@@ -31,39 +52,65 @@
             </div>
         @endif
 
+        @if(!empty($filters['location_hint'] ?? null))
+            <input type="hidden" name="location_hint" value="{{ $filters['location_hint'] }}">
+        @endif
+
         <div class="grid gap-4 md:grid-cols-2">
             <div>
                 <label for="negeri" class="mb-2 block text-sm font-semibold text-slate-700">Negeri</label>
-                <select id="negeri" name="negeri" class="w-full rounded-lg border border-slate-300 p-3 text-sm">
+                <select id="negeri" name="negeri" required class="w-full rounded-lg border p-3 text-sm {{ $errors->has('negeri') ? 'border-rose-400 bg-rose-50' : 'border-slate-300' }}">
                     <option value="">Pilih negeri</option>
-                    @foreach(['Selangor', 'Johor', 'Pulau Pinang', 'Kuala Lumpur', 'Negeri Sembilan'] as $negeri)
+                    @foreach(($states ?? []) as $negeri)
                         <option value="{{ $negeri }}" @selected(($filters['negeri'] ?? '') === $negeri)>{{ $negeri }}</option>
                     @endforeach
                 </select>
+                @error('negeri')
+                    <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p>
+                @enderror
             </div>
             <div>
                 <label for="daerah" class="mb-2 block text-sm font-semibold text-slate-700">Daerah</label>
-                <input id="daerah" type="text" name="daerah" value="{{ $filters['daerah'] ?? '' }}" placeholder="Contoh: Shah Alam" class="w-full rounded-lg border border-slate-300 p-3 text-sm">
+                <select id="daerah" name="daerah" class="w-full rounded-lg border border-slate-300 p-3 text-sm" data-selected-daerah="{{ $filters['daerah'] ?? '' }}">
+                    <option value="">Pilih daerah</option>
+                    @foreach(($districtsForState ?? []) as $daerah)
+                        <option value="{{ $daerah }}" @selected(($filters['daerah'] ?? '') === $daerah)>{{ $daerah }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
 
-        <button type="submit" class="rounded-xl bg-teal-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-teal-200 transition hover:bg-teal-700">
-            Cari Tempat
-        </button>
+        <div class="flex justify-end">
+            <button id="clinicSearchSubmit" type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-teal-200 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 3.473 9.765l3.63 3.631a.75.75 0 1 0 1.06-1.06l-3.63-3.63A5.5 5.5 0 0 0 9 3.5Zm-4 5.5a4 4 0 1 1 8 0 4 4 0 0 1-8 0Z" clip-rule="evenodd" />
+                </svg>
+                Cari Tempat
+            </button>
+        </div>
+
+        @if(!empty($searchQuery))
+            <div class="border-t border-slate-200 pt-4">
+                <p class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">Filter</p>
+                <div class="flex flex-wrap gap-2">
+                    @foreach(($queryBadges ?? collect()) as $badge)
+                        <span class="inline-flex items-center rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700">
+                            {{ $badge }}
+                        </span>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </form>
 
-    @if(!empty($searchQuery))
-        <div class="mb-6 rounded-2xl border border-slate-200 bg-white p-4">
-            <p class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">Query + Filter Digunakan</p>
-            <div class="flex flex-wrap gap-2">
-                @foreach(($queryBadges ?? collect()) as $badge)
-                    <span class="inline-flex items-center rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700">
-                        {{ $badge }}
-                    </span>
-                @endforeach
-            </div>
-        </div>
-    @endif
+    <x-calc-loading-overlay
+        id="clinicFinderLoadingScreen"
+        :duration="4200"
+        badge="CareReal Place Finder"
+        title="Sedang cari tempat rawatan"
+        subtitle="Menyusun hasil mengikut carian anda"
+        footer="Memuatkan peta dan senarai lokasi..."
+    />
 
     @if(!empty($serpError))
         <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
@@ -119,7 +166,7 @@
                                 @endif
                             </div>
 
-                            <div class="mt-4 flex gap-2">
+                            <div class="mt-4 flex flex-col gap-2 sm:flex-row">
                                 @if(!empty($place['maps_url']))
                                     <a href="{{ $place['maps_url'] }}" target="_blank" rel="noopener noreferrer" class="inline-flex flex-1 items-center justify-center rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-700" onclick="event.stopPropagation()">
                                         Buka Google Maps
@@ -168,11 +215,11 @@
                         id="placesMap"
                         src="{{ $mapUrl }}"
                         width="100%"
-                        height="640"
+                        class="h-[420px] md:h-[640px]"
                         loading="lazy"
                     ></iframe>
                 @else
-                    <div class="flex h-[640px] items-center justify-center bg-slate-50 px-8 text-center text-sm text-slate-500">
+                    <div class="flex h-[420px] items-center justify-center bg-slate-50 px-8 text-center text-sm text-slate-500 md:h-[640px]">
                         Peta akan dipaparkan selepas anda jalankan carian lokasi.
                     </div>
                 @endif
@@ -181,6 +228,97 @@
     </section>
 
     <script>
+        (() => {
+            const form = document.getElementById('clinicSearchForm');
+            if (!form) return;
+
+            const submitButton = document.getElementById('clinicSearchSubmit');
+            const loadingScreen = document.getElementById('clinicFinderLoadingScreen');
+            const loadingDuration = Number(loadingScreen?.dataset.duration || 4200);
+            let isSubmitting = false;
+
+            form.addEventListener('submit', (event) => {
+                if (isSubmitting) return;
+
+                event.preventDefault();
+                isSubmitting = true;
+
+                if (submitButton) {
+                    submitButton.disabled = true;
+                }
+
+                if (window.CareRealLoadingOverlay && loadingScreen) {
+                    window.CareRealLoadingOverlay.runFor('clinicFinderLoadingScreen', loadingDuration, () => {
+                        form.submit();
+                    });
+                    return;
+                }
+
+                window.setTimeout(() => {
+                    form.submit();
+                }, loadingDuration);
+            });
+        })();
+
+        (() => {
+            const negeriSelect = document.getElementById('negeri');
+            const daerahSelect = document.getElementById('daerah');
+
+            if (!negeriSelect || !daerahSelect) return;
+
+            const baseOptionLabel = 'Pilih daerah';
+
+            const renderDistrictOptions = (districts, selectedValue = '') => {
+                daerahSelect.innerHTML = '';
+
+                const placeholderOption = document.createElement('option');
+                placeholderOption.value = '';
+                placeholderOption.textContent = baseOptionLabel;
+                daerahSelect.appendChild(placeholderOption);
+
+                districts.forEach((district) => {
+                    const option = document.createElement('option');
+                    option.value = district;
+                    option.textContent = district;
+                    option.selected = district === selectedValue;
+                    daerahSelect.appendChild(option);
+                });
+            };
+
+            const loadDistricts = async (state, selectedValue = '') => {
+                if (!state) {
+                    renderDistrictOptions([], '');
+                    return;
+                }
+
+                try {
+                    const endpoint = `{{ route('clinic.districts') }}?negeri=${encodeURIComponent(state)}`;
+                    const response = await fetch(endpoint, { headers: { 'Accept': 'application/json' } });
+
+                    if (!response.ok) {
+                        throw new Error('Gagal dapatkan senarai daerah.');
+                    }
+
+                    const payload = await response.json();
+                    const districts = Array.isArray(payload.districts) ? payload.districts : [];
+                    renderDistrictOptions(districts, selectedValue);
+                } catch (error) {
+                    renderDistrictOptions([], '');
+                }
+            };
+
+            negeriSelect.addEventListener('change', async (event) => {
+                await loadDistricts(event.target.value, '');
+            });
+
+            const initialState = negeriSelect.value || '';
+            const initialDistrict = daerahSelect.dataset.selectedDaerah || '';
+
+            if (initialState) {
+                loadDistricts(initialState, initialDistrict);
+            }
+        })();
+
         (() => {
             const placeItems = Array.from(document.querySelectorAll('[data-place-item]'));
             const map = document.getElementById('placesMap');

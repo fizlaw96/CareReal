@@ -325,6 +325,8 @@ class CareRealSeeder extends Seeder
      */
     private function seedCategory(array $categoryData, array $treatmentsData, array $questionsData): void
     {
+        $questionsData = $this->appendLocationPreferenceQuestions($questionsData);
+
         $category = Category::updateOrCreate(
             ['slug' => $categoryData['slug']],
             $categoryData
@@ -339,6 +341,17 @@ class CareRealSeeder extends Seeder
                 ]
             );
 
+            $desiredQuestionKeys = collect($questionsData)
+                ->pluck('key')
+                ->values()
+                ->all();
+
+            if (! empty($desiredQuestionKeys)) {
+                $treatment->questions()
+                    ->whereNotIn('key', $desiredQuestionKeys)
+                    ->delete();
+            }
+
             foreach ($questionsData as $questionIndex => $questionData) {
                 $question = Question::updateOrCreate(
                     [
@@ -352,7 +365,20 @@ class CareRealSeeder extends Seeder
                     ]
                 );
 
-                foreach ($questionData['options'] as $optionIndex => $optionData) {
+                $desiredOptionLabels = collect($questionData['options'] ?? [])
+                    ->pluck('label')
+                    ->values()
+                    ->all();
+
+                if (empty($desiredOptionLabels)) {
+                    $question->options()->delete();
+                } else {
+                    $question->options()
+                        ->whereNotIn('label', $desiredOptionLabels)
+                        ->delete();
+                }
+
+                foreach (($questionData['options'] ?? []) as $optionIndex => $optionData) {
                     Option::updateOrCreate(
                         [
                             'question_id' => $question->id,
@@ -368,5 +394,66 @@ class CareRealSeeder extends Seeder
                 }
             }
         }
+    }
+
+    /**
+     * @param  array<int, array{label:string,key:string,type?:string,options:array<int, array{label:string,multiplier?:float,add_min?:int,add_max?:int}>}>  $questionsData
+     * @return array<int, array{label:string,key:string,type?:string,options:array<int, array{label:string,multiplier?:float,add_min?:int,add_max?:int}>}>
+     */
+    private function appendLocationPreferenceQuestions(array $questionsData): array
+    {
+        $existingKeys = collect($questionsData)->pluck('key')->all();
+
+        if (! in_array('preferred_state', $existingKeys, true)) {
+            $questionsData[] = [
+                'label' => 'Negeri (tempat tinggal / kawasan carian)',
+                'key' => 'preferred_state',
+                'type' => 'select',
+                'options' => $this->buildStateOptions(),
+            ];
+        }
+
+        if (! in_array('preferred_district', $existingKeys, true)) {
+            $questionsData[] = [
+                'label' => 'Daerah (jika tahu)',
+                'key' => 'preferred_district',
+                'type' => 'select',
+                'options' => $this->buildDistrictOptions(),
+            ];
+        }
+
+        return $questionsData;
+    }
+
+    /**
+     * @return array<int, array{label:string,multiplier?:float,add_min?:int,add_max?:int}>
+     */
+    private function buildStateOptions(): array
+    {
+        return collect(array_keys(config('malaysia_locations.states', [])))
+            ->sort()
+            ->values()
+            ->map(fn (string $state) => ['label' => $state])
+            ->all();
+    }
+
+    /**
+     * @return array<int, array{label:string,multiplier?:float,add_min?:int,add_max?:int}>
+     */
+    private function buildDistrictOptions(): array
+    {
+        $districts = collect(config('malaysia_locations.states', []))
+            ->flatten()
+            ->merge(collect(config('malaysia_locations.popular_areas', []))->flatten())
+            ->filter(fn ($value) => filled($value))
+            ->map(fn ($value) => trim((string) $value))
+            ->unique()
+            ->sort()
+            ->values();
+
+        return $districts
+            ->prepend('Tak pasti / pilih kemudian')
+            ->map(fn (string $district) => ['label' => $district])
+            ->all();
     }
 }

@@ -11,7 +11,7 @@ class SerpApiMapsService
     /**
      * @return array{results: array<int, array<string, mixed>>, error: string|null}
      */
-    public function searchNearby(string $query, int $limit = 8): array
+    public function searchNearby(string $query, int $limit = 8, ?string $whatsAppMessage = null): array
     {
         $apiKey = (string) config('services.serpapi.key');
         $endpoint = (string) config('services.serpapi.endpoint', 'https://serpapi.com/search.json');
@@ -51,7 +51,7 @@ class SerpApiMapsService
 
             $results = collect($json['local_results'] ?? [])
                 ->take($limit)
-                ->map(function (array $item): array {
+                ->map(function (array $item) use ($whatsAppMessage): array {
                     $lat = $item['gps_coordinates']['latitude'] ?? null;
                     $lng = $item['gps_coordinates']['longitude'] ?? null;
 
@@ -80,7 +80,7 @@ class SerpApiMapsService
                             $lat,
                             $lng
                         ),
-                        'whatsapp_url' => $this->buildWhatsAppUrl($item['phone'] ?? null),
+                        'whatsapp_url' => $this->buildWhatsAppUrl($item['phone'] ?? null, $whatsAppMessage),
                     ];
                 })
                 ->filter(fn (array $row) => filled($row['name']))
@@ -132,7 +132,7 @@ class SerpApiMapsService
         return Str::limit($primary, 48);
     }
 
-    private function buildWhatsAppUrl(?string $phone): ?string
+    private function buildWhatsAppUrl(?string $phone, ?string $message = null): ?string
     {
         if (blank($phone)) {
             return null;
@@ -157,6 +157,12 @@ class SerpApiMapsService
             return null;
         }
 
-        return 'https://wa.me/'.$normalized;
+        $baseUrl = 'https://wa.me/'.$normalized;
+
+        if (blank($message)) {
+            return $baseUrl;
+        }
+
+        return $baseUrl.'?text='.rawurlencode((string) $message);
     }
 }

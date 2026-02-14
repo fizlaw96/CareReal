@@ -44,15 +44,15 @@
     </style>
 
     <section class="mx-auto max-w-7xl">
-        <div class="mb-10 text-center">
+        <div class="mb-8 text-center md:mb-10">
             <p class="text-sm font-semibold uppercase tracking-widest text-teal-700">Kategori {{ $category->name }}</p>
-            <h1 class="mt-2 text-3xl font-extrabold text-slate-900 md:text-4xl">Pilih Jenis Rawatan Dahulu</h1>
-            <p class="mx-auto mt-3 max-w-2xl text-sm text-slate-600 md:text-base">
+            <h1 class="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl md:text-4xl">Pilih Jenis Rawatan Dahulu</h1>
+            <p class="mx-auto mt-3 max-w-2xl text-sm text-slate-600">
                 Setiap jenis rawatan ada fungsi berbeza. Pilih satu rawatan untuk terus ke soalan anggaran.
             </p>
         </div>
 
-        <div class="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-3">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-7 xl:grid-cols-3">
             @foreach($treatments as $item)
                 @php
                     $imageSrc = $treatmentImages[$item->slug]
@@ -61,7 +61,7 @@
                 @endphp
                 <a
                     href="{{ route('estimator.questions', ['category' => $category->slug, 'treatment' => $item->slug]) }}"
-                    class="treatment-card group relative flex h-[390px] flex-col overflow-hidden rounded-3xl border border-white/60 bg-white shadow-sm"
+                    class="treatment-card group relative flex h-[340px] flex-col overflow-hidden rounded-3xl border border-white/60 bg-white shadow-sm sm:h-[390px]"
                 >
                     <div class="absolute inset-0">
                         <img
@@ -72,8 +72,8 @@
                         <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent"></div>
                     </div>
 
-                    <div class="relative z-10 mt-auto p-7">
-                        <h2 class="text-2xl font-bold text-white">{{ $item->name }}</h2>
+                    <div class="relative z-10 mt-auto p-5 sm:p-7">
+                        <h2 class="text-xl font-bold text-white sm:text-2xl">{{ $item->name }}</h2>
                         <p class="mt-2 text-sm leading-relaxed text-slate-200">
                             {{ $treatmentGuides[$item->slug] ?? 'Penerangan rawatan belum ditetapkan.' }}
                         </p>

@@ -33,8 +33,8 @@
             'fitness' => 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1200&q=80',
             'general' => 'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=1200&q=80',
             'gigi' => 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=1200&q=80',
-            'kulit' => 'https://images.unsplash.com/photo-1570554886111-e80fcca6a029?auto=format&fit=crop&w=1200&q=80',
-            'mata' => 'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?auto=format&fit=crop&w=1200&q=80',
+            'kulit' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuDSgTqED0VvcVFAImBn62C3cRxN6BXoR-zxXAyHHGfsk7yMi4BMRii4yQgoN9n41cIOnwixGbE9GAMIZDooQFih909KmcK5G_qIAtVRp0SPKDLiSeu33wQnHWoTo5pNBqfmjHCNTd-ZxeiPyKe4V08r0OQjhgSeWnxZr9ES91dzP3Qi-8_1TPfEMkaChqsP7okxTyKJU40_45jAqmp3nwYNyltFz8eO8H7THrzkqPUIisENlXKFjLBsI_Ldmqj6BSnW5kw_XEVGiDs',
+            'mata' => 'https://lh3.googleusercontent.com/aida-public/AB6AXuBI7HG9FW9oWGSUPvtoapjHmJ0aTrJ8C6AzlbeUYssLLIXytn4r-Qjt91qDzTLM43tUZdZR85tUHBl5ggl2QjjCzVGND0qKmfV_5JUmSkd7wFcXibhDrdtZXUcmzNhDakhq8YaPJYZwxTUXC-ZYYUShjjv9UapNBbndx868y8WebNzmy7Yd0E5iuCedL0XXfhwkEvNMzhUujA6ERYV2KzuKvH9kSiO-a5AwfVDzNqI-qk3Xjc26f6KVSXwn9DuKSpqh5ypYECDnrAk',
             'rambut' => 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=1200&q=80',
         ];
     @endphp
@@ -166,14 +166,14 @@
             <div class="hero-aura aura-alt"></div>
 
             <div class="home-fluid-container">
-                <div class="hero-glass relative overflow-hidden rounded-[36px] p-8 md:p-12 lg:p-14 home-reveal is-visible">
+                <div class="hero-glass relative overflow-hidden rounded-[28px] p-5 sm:p-8 md:rounded-[36px] md:p-12 lg:p-14 home-reveal is-visible">
                     <div class="grid items-center gap-12 lg:grid-cols-2">
                         <div>
                             <div class="mb-7 inline-flex items-center rounded-full border border-white/70 bg-white/70 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-teal-700">
                                 Ketelusan Kos Kesihatan
                             </div>
 
-                            <h1 class="font-display mb-6 max-w-2xl text-4xl font-extrabold leading-[1.05] text-slate-900 md:text-6xl">
+                            <h1 class="font-display mb-5 max-w-2xl text-3xl font-extrabold leading-[1.05] text-slate-900 sm:text-4xl md:mb-6 md:text-6xl">
                                 Anggar Kos Rawatan
                                 <span class="bg-gradient-to-r from-teal-500 to-cyan-600 bg-clip-text text-transparent">lebih yakin</span>
                             </h1>
@@ -182,11 +182,11 @@
                                 Rancang bajet rawatan dengan cepat melalui aliran soalan ringkas dan anggaran kos yang lebih telus.
                             </p>
 
-                            <div class="flex flex-col gap-4 sm:flex-row">
-                                <a href="{{ route('categories') }}" class="premium-btn inline-flex items-center justify-center rounded-2xl bg-teal-600 px-8 py-4 text-base font-bold text-white transition hover:-translate-y-0.5 hover:bg-teal-700">
+                            <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
+                                <a href="{{ route('categories') }}" class="premium-btn inline-flex w-full items-center justify-center rounded-2xl bg-teal-600 px-8 py-4 text-base font-bold text-white transition hover:-translate-y-0.5 hover:bg-teal-700 sm:w-auto">
                                     Mula Anggaran
                                 </a>
-                                <a href="{{ route('clinic.finder') }}" class="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white/75 px-8 py-4 text-base font-bold text-slate-700 transition hover:border-teal-300 hover:text-teal-700">
+                                <a href="{{ route('clinic.finder') }}" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-300 bg-white/75 px-8 py-4 text-base font-bold text-slate-700 transition hover:border-teal-300 hover:text-teal-700 sm:w-auto">
                                     Cari Tempat Rawatan
                                 </a>
                             </div>
@@ -248,12 +248,12 @@
         @if($categories->isNotEmpty())
             <section class="pb-10 pt-4">
                 <div class="home-fluid-container">
-                    <div class="mb-9 flex items-end justify-between gap-4">
-                        <h2 class="font-display text-3xl font-extrabold text-slate-900">Bidang Rawatan Tersedia</h2>
+                    <div class="mb-9 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
+                        <h2 class="font-display text-2xl font-extrabold text-slate-900 sm:text-3xl">Bidang Rawatan Tersedia</h2>
                         <a href="{{ route('categories') }}" class="text-sm font-bold text-teal-700 hover:text-teal-600">Lihat semua →</a>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-6">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-6">
                         @foreach($categories as $category)
                             @php
                                 $label = $professionalLabels[$category->slug] ?? null;

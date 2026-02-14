@@ -13,3 +13,4 @@ Route::get('/estimate/{category:slug}/{treatment:slug}', [EstimatorController::c
 Route::post('/estimate/calculate', [EstimatorController::class, 'calculate'])->name('estimation.calculate');
 Route::get('/clinic-finder', [ClinicController::class, 'index'])->name('clinic.finder');
 Route::get('/clinic-search', [ClinicController::class, 'search'])->name('clinic.search');
+Route::get('/api/malaysia/districts', [ClinicController::class, 'districts'])->name('clinic.districts');
